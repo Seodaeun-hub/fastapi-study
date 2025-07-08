@@ -10,6 +10,12 @@
 - 이 강의에서 파이썬 가상 환경 관리를 위해 추천하는 도구는 무엇인가요? Conda
 - Uvicorn 서버 실행 시 코드 변경사항 저장 시 자동 재시작 기능을 활성화하는 옵션은 무엇인가요? --reload
 
+# 섹션2 퀴즈 정리
+- 많은 동시 요청 처리 시 FastAPI 성능 장점은 무엇일까요? 비동기 처리 지원
+- FastAPI가 자동으로 생성하는 API 문서화 및 테스트 도구는 무엇일까요? Swagger UI
+- FastAPI는 들어온 HTTP 요청을 어떤 기준으로 해당 함수와 연결하나요? HTTP 메소드와 경로
+- main.py 파일의 app 인스턴스를 Uvicorn으로 실행하는 기본 명령어는 무엇일까요? uvicorn main:app
+-  FastAPI 경로 작업 함수에서 Python 딕셔너리를 반환할 때 기본 응답 형식은 무엇일까요? JSON
 # 서버 실행
 uvicorn main:app --reload
 
