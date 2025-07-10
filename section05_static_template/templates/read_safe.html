@@ -1,0 +1,8 @@
+<html>
+<body>
+    <h1> 우리 상품은 </h1>
+    {{ html_str | safe }}
+</body>
+</html>
+<!-- {{ html_str }}로 적을 경우 html 태그 그대로 나오게 된다. -->
+<!-- | safe를 포함해야됨.-->
