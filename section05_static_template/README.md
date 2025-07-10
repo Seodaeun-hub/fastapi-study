@@ -60,6 +60,11 @@ async def read_item(request: Request, id: str, q: str | None= None) :
 - context 안에 있는 내용을 html에 보내는 것이다.
 - **주의사항** : 이때 key 값이 전달이 되므로 key값을 html과 맞춰야 한다.
 
+# Jinja2 주요 구문
+- {{...}} : 변수나 표현식
+- {%...%} : if, for문
+- {#...#} : 주석
+
 # 2. Jinja2의 if문 사용해보기
 ```python
 # item_gubun.html
@@ -192,3 +197,4 @@ async def read_item(request: Request, id: str, q: str | None = None):
 - **mount : /static 경로로 들어오는 요청은 FastAIP가 직접 처리하지 않고, StaticFiles 클래스에게 위임하여 해당 디렉터리 안의 파일을 그대로 서빙함.**
 - directory="static" : 실제 파일이 저장된 폴더명
 - name="static" : 템플릿에서 url_for("static, path="...") 사용 시 참조되는 이름
+
