@@ -337,7 +337,7 @@ print(product)
 - https://docs.pydantic.dev/latest/api/pydantic_extra_types_color/
 
 # 핵심 개념 정리 (pydantic_05)
-**vaildation custom하는 방법**
+*vaildation custom하는 방법*
 **1. field_vaildator : 개별 필드 값 검증**
 ```python
 from pydantic import BaseModel,  ValidationError, field_validator, model_validator
