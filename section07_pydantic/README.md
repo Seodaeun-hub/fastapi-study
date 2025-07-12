@@ -9,7 +9,7 @@
 
 
 # 핵심 개념 정리 (pydantic_01)
-1. Pydantic 모델을 사용한 class 선언
+**1. Pydantic 모델을 사용한 class 선언**
 ```python
 from pydantic import BaseModel, ValidationError
 from typing import List, Optional
@@ -29,14 +29,14 @@ print("user:", user, user.id)
 - **주의사항** : User(10, 'test_name', 'tname@example.com', 40) 하지 않도록 유의
 - 반드시 argument 명을 쳐줘야함. (선언한 class와 매핑 해줘야 함.)
 
-2. dict keyword argument(kwargs)로 Pydantic Model 객체화
+**2. dict keyword argument(kwargs)로 Pydantic Model 객체화**
 ```python
 user_from_dict = User(**{"id": 10, "name": "test_name", "email": "tname@example.com", "age": 40})
 print("user_from_dict:", user_from_dict, user_from_dict.id)
 ```
 - **{"":, "":,...} -> keyword argument로 나옴. (id=10, name="test_name",email="tname@example.com", age=40)
 
-3. json 문자열 기반 Pydantic Model 객체화
+**3. json 문자열 기반 Pydantic Model 객체화**
 ```python
 json_string = '{"id": 10, "name": "test_name", "email": "tname@example.com", "age": 40}'
 json_dict = json.loads(json_string)
@@ -45,7 +45,7 @@ print("user_from_json:", user_from_json, user_from_json.id)
 ```
 - 위에 꺼랑 같게 나옴.
 
-4. Pydantic Model의 상속
+**4. Pydantic Model의 상속**
 ```python
 class AdvancedUser(User):
     advanced_level: int
@@ -54,7 +54,7 @@ print("adv_user:", adv_user)
 ```
 - 위의 User class의 4개의 속성을 가져온 후 하나의 속성 추가
 
-5. 내포된(Nested된 Json) 데이터 기반 Pydantic Model 생성
+**5. 내포된(Nested된 Json) 데이터 기반 Pydantic Model 생성**
 ```python
 class Address(BaseModel):
     street: str
@@ -78,7 +78,7 @@ print("user_nested_02:", user_nested_02, user_nested_02.address, user_nested_02.
 ```
 - UserNested 클래스에 Address 클래스를 인자로 받을 수 있음.
 
-6. python 기반/json 문자열 기반으로 pydantic serialization
+**6. python 기반/json 문자열 기반으로 pydantic serialization**
 ```python
 #python 기반
 user_dump_01 = user.model_dump()
@@ -95,7 +95,7 @@ print(user_dump_02, type(user_dump_02))
 -> API 응답으로 JSON을 보낼 때, 저장할 때, 네트워크로 전송할 때 사용.
 
 # 핵심 개념 정리 (pydantic_02)
-1. Stirct() 모드 설정
+**1. Stirct() 모드 설정**
 ```python
 from pydantic import BaseModel, ValidationError, ConfigDict, Field, Strict
 from typing import List, Annotated #typehint
@@ -120,7 +120,7 @@ None 적용 시 Optional
 - 전체 모델에 Strict() 모드 적용 시
 첫째줄에 적기. **model_config = ConfigDict(strict=True)**
 
-2. Pydantic Model 객체화 시 자동 검증, 검증 오류시 ValidationError raise
+**2. Pydantic Model 객체화 시 자동 검증, 검증 오류시 ValidationError raise**
 ```python
 try:
     user = User(
@@ -139,7 +139,7 @@ except ValidationError as e:
 - class에 정의한 조건에 맞지 않을 경우, ValidationError 발생.
 
 # 핵심 개념 정리 (pydantic_03)
-1. 검증 오류
+**1. 검증 오류**
 ```python
 from pydantic import BaseModel, Field, ValidationError
 from typing import Optional
@@ -162,7 +162,7 @@ except ValidationError as e:
 - age는 0세 이상, 120 이하
 - is_active의 default 값은 True. 숫자값(1 or 0) 넣으면 True, False로 반환.
 
-2. 숫자형 검증 오류
+**2. 숫자형 검증 오류**
 - gt - greater than >
 - lt - less than <
 - ge - greater than or equal to >=
@@ -194,11 +194,12 @@ print(foo)
 ```
 - allwo_ing_nan=True -> 무한대 허용.
 
-3. 문자열 검증 오류
+**3. 문자열 검증 오류**
 - min_length: 문자열 최소 길이
 - max_length: 문자열 최대 길이
 - pattern: 문자열 정규 표현식 (많이 사용함.)
 
+예) 
 ```python
 class Foo(BaseModel):
     short: str = Field(min_length=3)
@@ -219,12 +220,14 @@ print(foo)
 - 날짜 (YYYY-MM-DD) : ^\d{4}-\d{2}-\d{2}$
 - 주민등록번호 앞자리 : ^\d{6}$
 
-4. Decimal
+**4. Decimal**
 - max_digits: Decimal 최대 숫자수. 소수점 앞에 0만 있는 경우나, 소수점값의 맨 마지막 0는 포함하지 않음. 
 - decimal_places: 소수점 자리수 . 소수점값의 맨 마지막 0는 포함하지 않음
 예) 103.25, 103.25000000 가능
 예) 0.25, 00000000.25 가능 
 (소수점 앞에 0과 맨 뒤 0은 포함하지 않음)
+
+예)
 ```python
 from decimal import Decimal
 class Foo(BaseModel):
@@ -234,7 +237,7 @@ print(foo)
 ```
 
 # 핵심 개념 정리 (pydantic_04)
-1. email 검증
+**1. email 검증**
 ```python
 from pydantic import BaseModel, EmailStr, Field
 
@@ -249,7 +252,7 @@ except ValueError as e:
 - email 검증할 때는 pydantic의 EmailStr 사용
 - email: EmailStr = Field(..., max_length=40) #Field와 함께 사용.
 
-2. url 검증
+**2. url 검증**
 1)  HttpUrl: http 또는 https만 허용. TLD(top-level domain)와 host명 필요. 최대 크기 2083
 - valid: https://www.example.com, http://www.example.com, http://example.com
 - invalid: ftp://example.com
@@ -265,6 +268,7 @@ except ValueError as e:
 4) FileUrl: 파일 프로토콜만 허용. host 명이 필요하지 않음. 
 - valid: file:///path/to/file.txt
 
+예)
 ```python
 from pydantic import HttpUrl, AnyUrl, AnyHttpUrl, FileUrl
 
@@ -288,7 +292,7 @@ except ValueError as e:
 ```
 - url을 검증할 때는 pydantic의 HttpURL, AnyUrl, AnyHttpUrl, FileUrl 사용
 
-3. ip 검증
+**3. ip 검증**
 1) IPvAnyAddress : IPv4Address or an IPv6Address
 - valid: 192.168.1.1, 192.168.56.101
 - invalid: 999.999.999.999 (255에 들어가야됨.)
@@ -299,6 +303,7 @@ except ValueError as e:
 - valid: 192.168.1.1/24
 - invalid: 192.168.1.1/33
 
+예)
 ```python
 from pydantic import IPvAnyAddress, IPvAnyNetwork, IPvAnyInterface
 
@@ -307,7 +312,6 @@ class Device(BaseModel):
     network: IPvAnyNetwork
     interface: IPvAnyInterface
 
-# Example usage
 try:
     device = Device(
         ip_address="192.168.1.1",
@@ -319,7 +323,7 @@ except ValueError as e:
 ```
 - IP를 검증할 때는 pydantic의 IPvAnyAddress, IPvAnyNetwork, IPvAnyInterface 사용
 
-4. pydantic-extra-types 검증
+**4. pydantic-extra-types 검증**
 ```python
 from pydantic_extra_types.country import CountryAlpha3
 
@@ -334,7 +338,7 @@ print(product)
 
 # 핵심 개념 정리 (pydantic_05)
 **vaildation custom하는 방법**
-1. field_vaildator : 개별 필드 값 검증
+**1. field_vaildator : 개별 필드 값 검증**
 ```python
 from pydantic import BaseModel,  ValidationError, field_validator, model_validator
 from typing import Optional
@@ -356,7 +360,7 @@ class User(BaseModel):
 - strip()을 써서 공백만 있는 값도 막음
 - 유효하지 않으면 valueErrror 발생
 
-2. field_validator : 비밀번호 조건 검증
+**2. field_validator : 비밀번호 조건 검증**
 ```python
     @field_validator('password')
     def password_must_be_strong(cls, value: str):
@@ -373,7 +377,7 @@ class User(BaseModel):
 예) sec012345 (isdigit(숫자냐))
     00011111 -> 하나라도 1이 있으면 1, 다 0이면 0 
 
-3. model_validator : 여러 필드 관계 검증
+**3. model_validator : 여러 필드 관계 검증**
 **여러 필드가 동시에 유효해야 할 때는 model_validator 사용**
 ```python
     @model_validator(mode='after')
@@ -401,7 +405,7 @@ except ValidationError as e:
 - 단순한 개별 조건은 Form 필드에서 바로 검증한다.
 - 필드 간 관게 조건이 필요한 경우에는 Pydantic 모델을 사용해야한다.
 
-1. python 모델 선언
+**1. python 모델 선언**
 ```python
 # schemas/item_schema.py
 from pydantic import BaseModel, Field, model_validator
@@ -442,7 +446,7 @@ def parse_user_form(
 
 
 2. **라우터 예제 및 설명**
-2-1) Query + Body (기본 모델 검증)
+**2-1) Query + Body (기본 모델 검증)**
 ```python
 @app.put("/items/{item_id}")
 async def update_item(item_id: int, q: str, item: Item=None):
@@ -451,7 +455,7 @@ async def update_item(item_id: int, q: str, item: Item=None):
 - Item은 JSON Body로 들어옴
 - model_validator 등 모든 검증 자동 적용.
 
-2-2) Path + Query + Body (JSON 기반 검증)
+**2-2) Path + Query + Body (JSON 기반 검증)**
 ```python
 @app.put("/items_json/{item_id}") 
 async def updata_item_json(
@@ -466,7 +470,7 @@ async def updata_item_json(
 ```
 - 쿼리 별 따로 조건 달기.
 
-2-3) Form : Form 필드별 직접 검증 (cross-field 불가)
+**2-3) Form : Form 필드별 직접 검증 (cross-field 불가)**
 ```python
 @app.post("/items_form/{item_id}")
 async def update_item_form(
@@ -484,7 +488,7 @@ async def update_item_form(
 ```
 - Form 필드에서 min_length, ge, max_length는 검증 가능하지만 필드 간 비교 (예: tax < price) 는 불가능
 
-2-4) Form -> Item 직접 생성 : 모델 검증 수동 적용
+**2-4) Form -> Item 직접 생성 : 모델 검증 수동 적용**
 ```python
 @app.post("/items_form_01/{item_id}")
 async def update_item_form_01(
@@ -506,7 +510,7 @@ async def update_item_form_01(
 - Form + Pydantic 모델 방식으로 Item() 내부에서 검증을 발생시킨다.
 - 그러면서 인자를 받고 안에서 검증을 시키게된다. 생성이 될 때 검증을 하면서 @model_validator(mode='after')로 cross-field 유효성 검증이 가능하다.
 
-6. Form + Depends(parse_user_form) : Form 전체를 함수에서 받아 Item 생성 후 검증
+**2-5) Form + Depends(parse_user_form) : Form 전체를 함수에서 받아 Item 생성 후 검증**
 ```python
 @app.post("/items_form_02/{item_id}")
 async def update_item_form_02(
