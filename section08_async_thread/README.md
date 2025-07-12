@@ -1,7 +1,11 @@
 # Section 08 - Async & Thread 실습 정리
 
 # 학습 주제
+- sync, async 차이
 - FastAPI에서의 async def와 def의 차이 이해
+- thread pool, multiprocess 이해
+- Uvicorn, Starlette, FastAPI 역할 이해
+
 
 **1. async, await**
 ```python
@@ -67,7 +71,7 @@ async def quick_response():
 예) uvicorn main:app --workers=4 --port=8081
 - terminal에 작성할 경우 parent process 1개, threadpool, eventloop 각각 4개가 생성된다.
 
-**5. Uvicorn, Starlette, FastAIP 역할 이해**
+**5. Uvicorn, Starlette, FastAPI 역할 이해**
 
 1. Uvicorn 역할
 - python 기반의 ASGI(Asynchronous Server Gateway Interface) 웹서버
