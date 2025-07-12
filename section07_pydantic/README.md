@@ -1,9 +1,12 @@
 # Section 07 - Pydantic 모델과 데이터 유효성 검사
 
 # 학습 주제
-- FastAPI에서 사용하는 Pydantic 모델의 역할
-- 입력 데이터의 타입 선언 및 자동 검증
-- 
+- FastAPI에서 Pydantic 모델을 활용한 요청 데이터 타입 선언과 자동 유효성 검사
+- Form 데이터와 JSON 데이터 처리 방식의 차이점과 유효성 검증 적용 방법
+- 기본 필드 검증 (Field), 엄격 모드 (Strict), 정규식/숫자/이메일/URL/IP 등 다양한 검증 기법
+- @field_validator, @model_validator를 통한 커스텀 유효성 검사 구현
+- Depends() + Form 조합을 통해 검증 로직을 함수로 분리하여 재사용성과 테스트 용이성 확보
+
 
 # 핵심 개념 정리 (pydantic_01)
 1. Pydantic 모델을 사용한 class 선언
