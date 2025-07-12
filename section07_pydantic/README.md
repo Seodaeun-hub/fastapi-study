@@ -446,7 +446,8 @@ def parse_user_form(
 ```
 
 
-2. **라우터 예제 및 설명**
+2. *라우터 예제 및 설명*
+
 **2-1) Query + Body (기본 모델 검증)**
 ```python
 @app.put("/items/{item_id}")
