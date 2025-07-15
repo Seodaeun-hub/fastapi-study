@@ -20,7 +20,7 @@
 4. **DB Client Driver <-> RDBMS**
 - Client Application에 DB Client Driver가 있다. 이 드라이버에서 제공하는 API를 통해 RDBMS하고 서로 인터페이스하면서 데이터를 요청하고 받는 구조로 되어있다.
 
-5. **Client 와 RDBMS의 SQL 처리 흐름 요약**
+# Client 와 RDBMS의 SQL 처리 흐름 요약
 
 1. ***Connection 요청***
 - 클라이언트가 DB에 접속하기 위해 접속 요청(Connection Request)을 보냄.
