@@ -21,14 +21,15 @@
 - Client Application에 DB Client Driver가 있다. 이 드라이버에서 제공하는 API를 통해 RDBMS하고 서로 인터페이스하면서 데이터를 요청하고 받는 구조로 되어있다.
 
 5. **Client 와 RDBMS의 SQL 처리 흐름 요약**
-1. **Connection 요청**
+
+1. ***Connection 요청***
 - 클라이언트가 DB에 접속하기 위해 접속 요청(Connection Request)을 보냄.
 - RDBMS는 사용자 정보(ID, PW 등)를 검증하고, 통과하면 세션(Session)을 생성.
 - 이후, Connection 객체를 클라이언트에게 전달함.
-2. **SQL 요청**
+2. ***SQL 요청***
 - 클라이언트가 생성된 Connection을 통해 SQL 문장을 보냄.
 예) SELECT * FROM blog
-3. **SQL 처리 과정 (RDBMS 내부)**
+3.***SQL 처리 과정 (RDBMS 내부)***
 - **SQL 문장 검증**
 - 문법상 올바른 SQL인지 확인 (예: SELECT, FROM 구문 체크)
 - **파싱(Parsing)**
@@ -39,10 +40,10 @@
 - 실행 계획에 따라 실제로 데이터를 읽거나 조작함.
 - **Cursor 생성**
 - 결과를 순차적으로 읽을 수 있도록 커서(Cursor)라는 포인터 생성.
-4. **결과 전송**
+4. ***결과 전송***
 - 클라이언트가 커서를 통해 결과를 Fetch(가져오기) 요청함.
 - RDBMS는 커서에 있는 결과 데이터를 클라이언트로 전송함.
-5. **Connection 종료**
+5. ***Connection 종료***
 - 클라이언트가 Connection 종료 요청.
 - RDBMS는 해당 세션을 종료하고, 세션이 사용하던 자원(메모리, 커서 등)을 정리함.
 
@@ -133,8 +134,8 @@ finally:
 - **text()** : SQL 쿼리 문자열을 안전하게 실행하는 SQLAlchemy 객체
 - **fetchcall()** : 모든 Row를 리스트로 반환
 - **Row 객체:**
-* row.id / row.title : 컬럼명으로 접근
-* row[0] : 인덱스로 접근 가능
+-> row.id / row.title : 컬럼명으로 접근
+-> row[0] : 인덱스로 접근 가능
 * **_key_to_index** : 컬럼명 <-> 인덱스 매핑 딕셔너리
 - **예외 처리 필수** : DB 연결 오류 및 SQL 실행 오류 캐치
 - **finally에 반드시 conn.close() 호출** -> 커넥션 풀로 반환
@@ -202,7 +203,7 @@ def context_get_conn():
     finally:
         conn.close() 
 ```
-- **direct_get_conn() 정의** : 이 함수는 그냥 connection 객체를 반환할 뿐임으로 **close() 호출 책임은 이 함수를 호출한 쪽**에 있다. 즉, 아래 코드처럼 반드시 명시적으로 닫아줘야한다.
+* **direct_get_conn() 정의** : 이 함수는 그냥 connection 객체를 반환할 뿐임으로 **close() 호출 책임은 이 함수를 호출한 쪽**에 있다. 즉, 아래 코드처럼 반드시 명시적으로 닫아줘야한다.
 
 - **context_get_conn() 정의** : 이 함수는 @contextmanager가 붙으면, 이 함수는 Context Manager 객체로 변환된다.**with 문법은 Context Manager 객체만 쓸 수 있다.**
 
