@@ -7,21 +7,7 @@
 - SQLAlchemy + Pydantic 기반 DB 모델 정의
 
 ## 프로젝트 디렉토리 구조 (기본)
-├── db/
-│ └── database.py # DB 연결 및 세션 관리
-├── routes/
-│ └── blog.py # 블로그 관련 CRUD 라우터
-├── schemas/
-│ └── blog_schema.py # Pydantic 스키마 정의
-├── templates/ # Jinja2 템플릿
-│ ├── index.html # 글 목록
-│ ├── new_blog.html # 새 글 작성
-│ ├── modify_blog.html # 글 수정
-│ └── show_blog.html # 글 상세 보기
-├── utils/
-│ └── util.py # 공용 함수
-├── main.py # FastAPI 진입점
-└── initial_data.sql # 초기 샘플 데이터
+<pre> ## 프로젝트 디렉터리 구조 (기본) ``` db/ ├── database.py # DB 연결 및 세션 관리 routes/ ├── blog.py # 블로그 관련 CRUD 라우터 schemas/ ├── blog_schema.py # Pydantic 스키마 정의 templates/ # Jinja2 템플릿 ├── index.html # 글 목록 ├── new_blog.html # 새 글 작성 ├── modify_blog.html # 글 수정 └── show_blog.html # 글 상세 보기 utils/ └── util.py # 공용 함수 main.py # FastAPI 진입점 initial_data.sql # 초기 샘플 데이터 ``` </pre>
 
 # 1.DB 초기 세팅 (initial_data.sql)
 ```python
@@ -183,9 +169,9 @@ templates = Jinja2Templates(directory="templates")
 - direct_get_conn : 직접 연결, 수동으로 close 필요
 - context_get_conn : with 문과 함께 자동 close
 4. **데이터 가공**
-BlogData (pydantic dataclass) : DB 조회 결과를 Python 객체로 변환
--> Row를 그대로 사용하면 빠르고 간단하지만 유지보수/가독성이 낮으므로 BlogData(Python 객체)를 사용해서 명확한 데이터 구조, 템플릿/가공/확장성 용이에 도움이 된다.
-util 모듈 : 텍스트 자르기, 줄바꿈 → <br> 변환
+- BlogData (pydantic dataclass) : DB 조회 결과를 Python 객체로 변환
+- Row를 그대로 사용하면 빠르고 간단하지만 유지보수/가독성이 낮으므로 BlogData(Python 객체)를 사용해서 명확한 데이터 구조, 템플릿/가공/확장성 용이에 도움이 된다.
+- util 모듈 : 텍스트 자르기, 줄바꿈 → <br> 변환
 
 # 5. 블로그 전체 목록 조회 (Index 페이지)
 ```html
