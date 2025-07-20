@@ -3,6 +3,7 @@
 # 학습 주제
 - FastAPI에서 다양한 방식으로 **응답을 반환하는 방법**
 - 'JSON Response', 'HTML Response', 'Redirect Response', 'response_model'
+- HTTP Stause code
 
 # 주요 개념 요약
 # 1. JSON Response
@@ -101,3 +102,25 @@ async def create_item_model(item: Item):
 - return 할 때 반드시 response_model로 명시된 것으로 나와야한다.
 - 즉 위에 response와 달리 반드시 response_model이 정해져야한다.
 - 또한 response_model에 정의된 속성들은 반드시 있어야한다.
+
+# 5. HTTP Status Code
+1. 2xx : 성공적으로 요청 수행
+- 200 OK : Get/Post등의 request를 성공적으로 수행.
+- 201 Created : 새로운 리소스를 성공적으로 생성(Post등)
+- 204 No Content : 요청을 성공 수행. 어떤 content도 반환하지 않음.
+2. 3xx : 추가적인 Redirection 요청
+- 301 Moved Permanently : 요청된 Resource가 새로운 URL로 영구 이동
+- 302 Found : 요청 Resource가 일시적으로 이전. 거의 대부분의 브라우저들이 사실상 HTTP 메소드를 GET으로 변경
+- 303 See other : 302와 비슷하지만 무조건 GET으로 변경
+- 307 Temporary Redirect : 요청 Resource가 일시적으로 다른 URL 이전. HTTP 메소드 동일
+**차이점(302,303과 307)**
+302,303은 다른 메소드로 변경될 때 사용하고 307은 동일한 메소드일 때 사용.
+3. 4xx : client의 잘못된 요청 등의 오류
+- 400 Bad Request : Server가 client 요구를 이해할 수 없음(잘못된 syntax 등)
+- 401 Unauthorized : 요청 시 인증 실패
+- 404 Not Found : 요청한 Request 자원을 찾을 수 없음
+- 405 Method Not Allowed : 잘못된 HTTP 메소드로 요청함
+- 422 Unporcessable Entity : 요청 포맷은 맞지만, 문맥적인 해석 불가
+4. 5xx : Server 오류
+- 500 Internal Server Error : 비정상적인 상황의 오류 발생
+- 503 Service Unavailable : 과부하/장애/유지보수 이유로 잠시 서비스 불가

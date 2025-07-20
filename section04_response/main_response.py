@@ -88,6 +88,6 @@ async def create_item_model(item: Item):
              description=item.description,
              price_with_tax=price_with_tax)
 
-    return 
+    return item_resp
 
 #return item으로 한다면 validation error가 나온다. price_with_tax가 없기 때문에
