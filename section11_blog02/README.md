@@ -68,6 +68,7 @@ def get_all_blogs(conn: Connection) -> List:
 - BlogData 객체로 변환 후 Router로 반환
 
 ```python
+#blog.py
 @router.get("/")
 def get_all_blogs(request: Request, conn: Connection = Depends(context_get_conn)):
     all_blogs = blog_svc.get_all_blogs(conn)
@@ -81,3 +82,217 @@ def get_all_blogs(request: Request, conn: Connection = Depends(context_get_conn)
 **변경 포인트**
 - Router는 서비스 호출 + HTML TemplateResponse만 담당
 - context에 all_blogs를 넘겨주어 Jinja2에서 렌더링
+
+# 2. 특정 글 상세 조회 (Read One)
+**변경된 이유**
+- SQL 실행 및 예외 처리를 서비스 레이어에서만 담당
+- Router는 blog_svc.get_blog_by_id() 호출 + 템플릿에 데이터 전달만 수행
+
+```python
+#blog_svc.py
+def get_blog_by_id(conn: Connection, id: int):
+    try:
+        query = f"""
+        SELECT id, title, author, content, image_loc, modified_dt from blog
+        where id = :id
+        """
+        stmt = text(query)
+        bind_stmt = stmt.bindparams(id=id)
+        result = conn.execute(bind_stmt)
+         
+        if result.rowcount == 0:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"해당 id {id}는(은) 존재하지 않습니다.")
+
+        row = result.fetchone()
+        blog = BlogData(id=row[0], title=row[1], author=row[2], content=row[3],
+                 image_loc=row[4], modified_dt=row[5])
+        
+        result.close()
+        return blog
+
+    
+    except SQLAlchemyError as e:
+        print(e)
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                            detail="요청하신 서비스가 잠시 내부적으로 문제가 발생하였습니다.")
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail="알수없는 이유로 서비스 오류가 발생하였습니다")
+```
+```python
+#blog.py
+@router.get("/show/{id}")
+def get_blog_by_id(request: Request, id: int,
+                   conn: Connection = Depends(context_get_conn)):
+    blog = blog_svc.get_blog_by_id(conn,id)
+    blog.content = util.newline_to_br(blog.content)
+    
+    return templates.TemplateResponse(
+        request = request,
+        name="show_blog.html",
+        context = {"blog": blog})
+```
+**변경된 점**
+- 개행 처리(newline_to_br)
+- Service layer는 비즈니스 로직만 담당해야하므로 DB에서 꺼내 데이터는 있는 그대로 반환한다.
+- UI 관련 로직은 Router/Template의 역할이다.
+- 그러므로 blog.py에 직접 blog.content = util.newline_to_br(blog.content)라고 적어준다.
+
+# 3. 글 생성 (Create)
+**변경된 이유**
+- Service에서 Insert SQL 및 Commit/에러 처리 담당
+- Router는 Form 데이터 수집 + 서비스 호출만 수행
+
+```python
+#blog_svc.py
+def create_blog(conn: Connection, title : str, author: str, content: str):
+    try:
+        query = f"""
+        INSERT INTO blog(title, author, content, modified_dt)
+        values ('{title}', '{author}', '{content}', now())
+        """
+        conn.execute(text(query))
+        conn.commit()
+
+    except SQLAlchemyError as e:
+        print(e)
+        conn.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="요청데이터가 제대로 전달되지 않았습니다.")
+
+```
+```python
+#blog.py
+@router.get("/new")
+def create_blog_ui(request: Request):
+    return templates.TemplateResponse(
+        request = request,
+        name = "new_blog.html",
+        context = {}
+    )
+
+@router.post("/new")
+def create_blog(request: Request
+                , title = Form(min_length=2, max_length=200)
+                , author = Form(max_length=100)
+                , content = Form(min_length=2, max_length=4000)
+                , conn: Connection = Depends(context_get_conn)):
+    blog_svc.create_blog(conn, title=title, author=author, content=content)
+    return RedirectResponse("/blogs", status_code=status.HTTP_302_FOUND)
+```
+**변경된 내용**
+- context에 담길게 없더라도 content={}라고 처리해주기
+- **왜 '{title}' 처럼 작은 따옴표('')가 필요한가?**
+- SQL 문법상 문자열 값은 작은 따옴표로 감싸야 한다.
+- VARCHAR, TEXT, DATETIME 등 문자열 계열 컬럼은 '값' 형태로 전달해야 한다.
+- 숫자(INT,FLOAT)는 따옴표 없이 123처럼 바로 쓸 수 있다.
+- 만약에 바인드 변수(:title)을 사용하면 자동으로 처리된다.
+```python
+# 바인드 변수를 쓰는 경우
+query = "INSERT INTO blog(title, author, content, modified_dt) VALUES (:title, :author, :content, now())"
+bind_stmt = text(query).bindparams(title=title, author=author, content=content)
+conn.execute(bind_stmt)
+
+```
+
+# 4. 글 수정 (Update)
+- **흐름** : modify_blog_html -> Form 데이터 전송 -> blog_svc.update_blog()
+
+```python
+#blog_svc.py
+def update_blog(conn: Connection, id: int
+                , title = str
+                , author = str
+                , content = str):
+    
+    try:
+        query = f"""
+        UPDATE blog 
+        SET title = :title , author= :author, content= :content
+        where id = :id
+        """
+        bind_stmt = text(query).bindparams(id=id, title=title, 
+                                           author=author, content=content)
+        result = conn.execute(bind_stmt)
+        # 해당 id로 데이터가 존재하지 않아 update 건수가 없으면 오류를 던진다.
+        if result.rowcount == 0:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"해당 id {id}는(은) 존재하지 않습니다.")
+        conn.commit()
+    except SQLAlchemyError as e:
+        print(e)
+        conn.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="요청데이터가 제대로 전달되지 않았습니다. ")
+
+```
+
+```python
+#blog.py
+@router.get("/modify/{id}")
+def update_blog_ui(request: Request, id: int, conn = Depends(context_get_conn)):
+    blog = blog_svc.get_blog_by_id(conn,id=id)
+    
+    return templates.TemplateResponse(
+        request = request,
+        name="modify_blog.html",
+        context = {"blog" : blog}
+    )
+
+@router.post("/modify/{id}")
+def update_blog(request: Request, id: int
+                , title = Form(min_length=2, max_length=200)
+                , author = Form(max_length=100)
+                , content = Form(min_length=2, max_length=4000)
+                , conn: Connection = Depends(context_get_conn)):
+    blog_svc.update_blog(conn=conn, id=id, title=title, author=author, content=content)
+    return RedirectResponse(f"/blogs/show/{id}", status_code=status.HTTP_302_FOUND)
+```
+
+# 5. 글 삭제 (Delete)
+```python
+# blog_svc.py
+def delete_blog(conn : Connection, id: int):
+    try:
+        query = f"""
+        DELETE FROM blog
+        where id = :id
+        """
+
+        bind_stmt = text(query).bindparams(id=id)
+        result = conn.execute(bind_stmt)
+        # 해당 id로 데이터가 존재하지 않아 delete 건수가 없으면 오류를 던진다.
+        if result.rowcount == 0:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"해당 id {id}는(은) 존재하지 않습니다.")
+        conn.commit()
+
+    except SQLAlchemyError as e:
+        print(e)
+        conn.rollback()
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                            detail="요청하신 서비스가 잠시 내부적으로 문제가 발생하였습니다.")
+```
+```python
+# blog.py
+@router.post("/delete/{id}")
+def delete_blog(request: Request, id: int
+                , conn: Connection = Depends(context_get_conn)):
+    blog_svc.delete_blog(conn=conn,id=id)
+    return RedirectResponse("/blogs", status_code=status.HTTP_302_FOUND)
+```
+
+# 섹션 11 요약 - 왜 이렇게 구조를 바꿨는가?
+# 개선된 구조 (섹션 11)
+- **Service Layer(blog_svc.py) 도입**
+- DB 쿼리 및 비즈니스 로직은 서비스에서만 담당
+- Router는 HTTP 요청/응답과 템플릿 렌더링만 담당
+- **에러 처리 일원화**
+- DB와 관련된 에러는 서비스 레이어에서만 처리 → 중복 제거
+- **의존성 주입(Depends)**
+- Depends(context_get_conn)으로 DB 연결 관리 간소화
+- 테스트 시 Service를 독립적으로 단위 테스트 가능
+- **UI 처리 분리**
+- 예) blog.content = util.newline_to_br(blog.content)는 UI에서만 필요한 처리 → Router에서 수행, Service는 DB에서 가져온 순수 데이터만 반환
