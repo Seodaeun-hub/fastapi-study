@@ -7,14 +7,15 @@
 - 에러 처리를 서비스 레이어에 일원화하여 코드 중복 감소
 
 # 구조 다이어그램
+## 구조 다이어그램
 ```mermaid
 graph TD
-A[클라이언트 요청] --> B[Router (blog.py)]
-B -->|HTTP Request/Response 처리| C[Service Layer (blog_svc.py)]
-C -->|비즈니스 로직 실행 및 SQL 처리| D[(Database)]
-D --> C
-C --> B
-B --> A[HTML TemplateResponse 반환]
+    A["클라이언트 요청"] --> B["Router (blog.py)"]
+    B -->|"HTTP Request/Response 처리"| C["Service Layer (blog_svc.py)"]
+    C -->|"비즈니스 로직 실행 및 SQL 처리"| D["Database"]
+    D --> C
+    C --> B
+    B --> A["HTML TemplateResponse 반환"]
 ```
 
 # 섹션10 vs 섹션11의 주요 차이점
@@ -86,6 +87,7 @@ def get_all_blogs(request: Request, conn: Connection = Depends(context_get_conn)
 - context에 all_blogs를 넘겨주어 Jinja2에서 렌더링
 - **왜 Service Layer 함수에서 conn:Connection을 맨 앞에 두었는가?**
 - 섹션 10에서는 Router 내부에서 직접 DB 작업을 했기 때문에 매개변수 순서가 FastAPI의 Form 처리 규칙을 따라야 했다. 
+
 ```python
 # 섹션10 (Router 내부)
 @router.post("/modify/{id}")
@@ -98,6 +100,7 @@ def update_blog(
     conn: Connection = Depends(context_get_conn) # 항상 마지막
 )
 ```
+
 - 하지만 섹션11에서는 FastAPI가 아닌 순수한 Python 함수로 동작하므로, Form 처리 규칙을 고려할 필요가 없다. 대신 서비스 레이터 함수 설계 원칙에 따라 순서를 바꾼 것이다. 또한 DB 연결 객체가 이 함수의 핵심 전제이자 실행 환경이라는 점을 명확히 보여주기 위함이다.
 
 # 2. 특정 글 상세 조회 (Read One)
