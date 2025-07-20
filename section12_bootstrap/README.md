@@ -61,7 +61,7 @@
 </html>
 ```
 - **Bootstrap 사용시 추가해야할 내용**
-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+- 다음 내용 추가하기 -> <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
 - 각 class 별로 나누어야 유지보수에 용이하다.
 - 각 class를 추가할 때는 **{% include '/layout/navbar.html' %}**을 삽입하면 된다. footer부분도 마찬가지.
 - main section에 내용을 넣을 때는 **{% block content %}{% endblock %}**을 삽입한다.
@@ -106,25 +106,26 @@
 # 2. 주요 흐름 다이어그램
 ```mermaid
 graph TD
-    A[글 생성] -->|이미지 업로드| B[upload_file()]
-    B -->|image_loc 반환| C[DB 저장(create_blog)]
-    C -->|Null이면 Default 처리| D[조회(get_all_blogs/get_blog_by_id)]
-    D -->|TemplateResponse| E[Bootstrap UI 출력]
-    E -->|수정 시 새 이미지 업로드| F[update_blog()]
-    E -->|삭제 클릭(JS)| G[DELETE API]
-    G -->|DB + 이미지 파일 삭제| H[window.location.href로 Redirect]
+    A["글 생성"] -->|이미지 업로드| B["upload file"]
+    B -->|이미지 경로 반환| C["DB 저장 (create blog)"]
+    C -->|Null이면 Default 처리| D["조회 (get all blogs / get blog by id)"]
+    D -->|TemplateResponse| E["Bootstrap UI 출력"]
+    E -->|수정 시 이미지 업로드| F["update blog"]
+    E -->|삭제 클릭 (JS)| G["DELETE API"]
+    G -->|DB + 이미지 파일 삭제| H["Redirect (window.location.href)"]
 ```
 
 
 
+
 # 3. 환경 설정 변경
-1. .env
+1. **.env**
 ```python
 UPLOAD_DIR="./static/uploads"
 ```
 - 업로드 경로를 코드에 넣지 않고, 환경 변수로 관리
 
-2. main.py
+2. **main.py**
 ```python
 from fastapi.staticfiles import StaticFiles
 
@@ -135,7 +136,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # 4. 흐름별 코드 상세 분석
 # 4.1 글 생성 (이미지 업로드 포함)
-1. HTML에서 Form 전송
+1. **HTML에서 Form 전송**
 ```html
 <form action="/blogs/new" method="POST" enctype="multipart/form-data">
 
@@ -148,7 +149,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 - enctype="multipart/form-data" 필수 -> 파일 전송 허용
 - 이미지가 첨부되지 않으면 imagefile.filename=""
 
-2. Router에서 처리 흐름
+2. **Router에서 처리 흐름**
 ```python
 # blog.py
 @router.post("/new")
@@ -172,7 +173,7 @@ def create_blog(request: Request
 - **len(imagefile.filename.strip()) > 0**
 - 업로드된 파일명이 공백이 아닌지 체크, 파일이 선택되지 않았다면 업로드 로직을 건너뛴다. strip()은 혹시나 빈 공백만 들어오는 경우 방지
 
-3. Service - 업로드 처리 상세
+3. **Service - 업로드 처리 상세**
 ```python
 # blog_svc.py
 def upload_file(author: str, imagefile: UploadFile = None):
@@ -201,7 +202,7 @@ def upload_file(author: str, imagefile: UploadFile = None):
 - URL : /static/uploads/...
 -> [1:]로 "." 제거
 
-4. Service - DB 저장
+4. **Service - DB 저장**
 ```python
 def create_blog(conn: Connection, title:str, author:str, content:str, image_loc=None):
     try:
@@ -218,7 +219,7 @@ def create_blog(conn: Connection, title:str, author:str, content:str, image_loc=
 - image_loc='/static/uploads/...' → '/static/uploads/...' (작은 따옴표 필수)
 - 숫자는 따옴표 없이, 문자열은 따옴표 필수 (SQL 문법 때문)
 
-5. Template에서 표시
+5. **Template에서 표시**
 ```html
 <!--index.html-->
 <img src="{{ blog.image_loc }}" alt="이미지">
@@ -232,7 +233,7 @@ FROM blog;
 
 ```
 # 4.2 글 조회 (Default 이미지 처리)
-SQL로 Default 처리
+**SQL로 Default 처리**
 ```python
 def get_all_blogs(...):
     query = """
@@ -243,7 +244,7 @@ def get_all_blogs(...):
     FROM blog;
     """
 ```
-Python에서 Default 처리
+**Python에서 Default 처리**
 ```python
 rows = result.fetchall()
 all_blogs = []
