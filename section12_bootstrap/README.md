@@ -111,7 +111,7 @@ graph TD
     C -->|Null이면 Default 처리| D["조회 (get all blogs / get blog by id)"]
     D -->|TemplateResponse| E["Bootstrap UI 출력"]
     E -->|수정 시 이미지 업로드| F["update blog"]
-    E -->|삭제 클릭 (JS)| G["DELETE API"]
+    E -->|"삭제 클릭 (JS)"| G["DELETE API"]
     G -->|DB + 이미지 파일 삭제| H["Redirect (window.location.href)"]
 ```
 
